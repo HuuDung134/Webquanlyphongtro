@@ -23,10 +23,10 @@ out/
 packages/
 
 # ASP.NET Core
-
+backend/appsettings.json
+backend/appsettings.Development.json
 wwwroot/uploads/
 *.db
-appsettings.Development.json
 
 # Frontend
 frontend/node_modules/
