@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý giá nước</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div id="sidebar"></div>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Quản lý giá nước</h1>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGiaNuocModal">
+                        <i class="fas fa-plus"></i> Thêm giá nước mới
+                    </button>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã giá nước</th>
+                                <th>Bậc nước</th>
+                                <th>Giá tiền nước</th>
+                                <th>Từ số nước</th>
+                                <th>Đến số nước</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="giaNuocTableBody">
+                            <!-- Data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add Modal -->
+    <div class="modal fade" id="addGiaNuocModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thêm giá nước mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addGiaNuocForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label">Bậc nước</label>
+                            <input type="number" class="form-control" id="bacNuoc" required min="1" 
+                                oninvalid="this.setCustomValidity('Vui lòng nhập bậc nước lớn hơn 0')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập bậc nước lớn hơn 0
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Giá tiền nước</label>
+                            <input type="number" class="form-control" id="giaTienNuoc" required min="0" step="1000"
+                                oninvalid="this.setCustomValidity('Vui lòng nhập giá tiền nước hợp lệ')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập giá tiền nước hợp lệ
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Từ số nước</label>
+                            <input type="number" class="form-control" id="tuSoNuoc" required min="0"
+                                oninvalid="this.setCustomValidity('Vui lòng nhập số nước bắt đầu hợp lệ')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập số nước bắt đầu hợp lệ
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Đến số nước</label>
+                            <input type="number" class="form-control" id="denSoNuoc" required min="0"
+                                oninvalid="this.setCustomValidity('Vui lòng nhập số nước kết thúc hợp lệ')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập số nước kết thúc hợp lệ
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="saveGiaNuocBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editGiaNuocModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sửa giá nước</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editGiaNuocForm" class="needs-validation" novalidate>
+                        <input type="hidden" id="editMaGiaNuoc">
+                        <div class="mb-3">
+                            <label class="form-label">Bậc nước</label>
+                            <input type="number" class="form-control" id="editBacNuoc" required min="1"
+                                oninvalid="this.setCustomValidity('Vui lòng nhập bậc nước lớn hơn 0')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập bậc nước lớn hơn 0
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Giá tiền nước</label>
+                            <input type="number" class="form-control" id="editGiaTienNuoc" required min="0" step="1000"
+                                oninvalid="this.setCustomValidity('Vui lòng nhập giá tiền nước hợp lệ')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập giá tiền nước hợp lệ
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Từ số nước</label>
+                            <input type="number" class="form-control" id="editTuSoNuoc" required min="0"
+                                oninvalid="this.setCustomValidity('Vui lòng nhập số nước bắt đầu hợp lệ')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập số nước bắt đầu hợp lệ
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Đến số nước</label>
+                            <input type="number" class="form-control" id="editDenSoNuoc" required min="0"
+                                oninvalid="this.setCustomValidity('Vui lòng nhập số nước kết thúc hợp lệ')"
+                                oninput="this.setCustomValidity('')">
+                            <div class="invalid-feedback">
+                                Vui lòng nhập số nước kết thúc hợp lệ
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="updateGiaNuocBtn">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="Config.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="giaNuoc.js"></script>
+</body>
+</html> 

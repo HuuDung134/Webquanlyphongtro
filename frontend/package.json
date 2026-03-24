@@ -1,0 +1,12 @@
+{
+  "name": "quan-ly-nha-tro",
+  "version": "1.0.0",
+  "description": "Ứng dụng quản lý nhà trọ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+} 

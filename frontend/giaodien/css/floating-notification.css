@@ -1,0 +1,182 @@
+/* Floating Notification Button - Góc trên bên phải */
+
+.floating-notification-button {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    z-index: 9999 !important;
+    animation: pulse-yellow 2s infinite;
+}
+
+.floating-notification-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 193, 7, 0.6);
+}
+
+.floating-notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    animation: bounce 1s infinite;
+}
+
+@keyframes pulse-yellow {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 193, 7, 0.8);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Notification Panel */
+.floating-notification-panel {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    max-height: calc(100vh - 120px);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 9997;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.floating-notification-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    color: white;
+}
+
+.floating-notification-header h6 {
+    margin: 0;
+    font-weight: 600;
+    color: white;
+}
+
+.floating-notification-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: background 0.2s ease;
+}
+
+.floating-notification-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.floating-notification-list {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    background: white;
+}
+
+.floating-notification-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color, #dee2e6);
+    transition: background 0.2s ease;
+}
+
+.floating-notification-item:hover {
+    background: #f8f9fa;
+}
+
+.floating-notification-item:last-child {
+    border-bottom: none;
+}
+
+.floating-notification-title {
+    font-weight: 600;
+    color: var(--text-primary, #212529);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.floating-notification-content {
+    color: var(--text-secondary, #6c757d);
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.floating-notification-time {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #6c757d);
+    opacity: 0.7;
+}
+
+.floating-notification-empty,
+.floating-notification-loading {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary, #6c757d);
+}
+
+.floating-notification-empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .floating-notification-button {
+        top: 15px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .floating-notification-panel {
+        top: 75px;
+        right: 15px;
+        width: calc(100vw - 30px);
+    }
+}
+

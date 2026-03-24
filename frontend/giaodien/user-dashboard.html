@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Người thuê</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Floating Chat CSS -->
+    <link href="css/floating-chat.css" rel="stylesheet">
+    <!-- Chat Modal CSS -->
+    <link href="css/chat-modal.css" rel="stylesheet">
+    <!-- Floating Notification CSS -->
+    <link href="css/floating-notification.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, .75);
+        }
+
+        .sidebar .nav-link:hover {
+            color: rgba(255, 255, 255, 1);
+        }
+
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, .1);
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .user-info {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .action-buttons {
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            font-size: 0.9em;
+            padding: 5px 10px;
+        }
+        .btn-iot {
+            transition: all 0.3s;
+            border: none;
+            font-weight: 600;
+        }
+        .btn-iot:active { transform: scale(0.95); }
+        .btn-iot-open { background-color: #28a745; color: white; } /* Màu xanh */
+        .btn-iot-close { background-color: #343a40; color: white; } /* Màu đen */
+        .iot-status { font-size: 0.85rem; margin-top: 5px; min-height: 20px;}
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 px-0 sidebar">
+                <div class="p-3">
+                    <h4>Menu</h4>
+                    <hr>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="dashboard">
+                                <i class="fas fa-home"></i> Trang chủ
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="contract">
+                                <i class="fas fa-file-contract"></i> Hợp đồng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="bills">
+                                <i class="fas fa-file-invoice-dollar"></i> Hóa đơn
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="utilities">
+                                <i class="fas fa-bolt"></i> Tiện ích
+                            </a>
+                        </li>
+                        <li class="nav-item mt-3">
+                            <a class="nav-link text-danger" href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 main-content">
+               
+                <!-- Dashboard Section -->
+                <div id="dashboard" class="content-section active">
+                    <div class="user-info card shadow-sm border-0 mb-4 p-4 d-flex flex-row align-items-center" style="border-radius: 16px;">
+                        <div class="me-4 text-center">
+                            <div style="width:90px;height:90px;border-radius:50%;background:#e9ecef;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                                <i class="fas fa-user-circle fa-4x text-secondary"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h3 class="mb-2" id="userFullName">Thông tin người dùng</h3>
+                            <ul class="list-unstyled mb-0" id="userInfoList">
+                                <!-- Thông tin user sẽ render ở đây -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Hợp đồng hiện tại</h5>
+                                    <div id="currentContractInfo">
+                                        <p class="card-text">Đang tải...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Hóa đơn chưa thanh toán</h5>
+                                    <div id="unpaidBillsInfo">
+                                        <p class="card-text">Đang tải...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Thông tin phòng</h5>
+                                    <div id="roomInfo">
+                                        <div id="roomImageBox" class="mb-2 text-center"></div>
+                                        <p class="card-text">Đang tải...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contract Section -->
+                <div id="contract" class="content-section">
+                    <h3>Hợp đồng của tôi</h3>
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div id="contractDetails">
+                                <div class="row" id="contractList">
+                                    <!-- Hợp đồng sẽ được hiển thị ở đây -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bills Section -->
+                <div id="bills" class="content-section">
+                    <h3>Hóa đơn của tôi</h3>
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="row" id="billList">
+                                <!-- Hóa đơn sẽ được hiển thị ở đây -->
+                            </div>
+                            <!-- Bảng lịch sử hóa đơn -->
+                            <div class="table-responsive mt-4">
+                                <table class="table table-bordered" id="billHistoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã hóa đơn</th>
+                                            <th>Kỳ hóa đơn</th>
+                                            <th>Ngày lập</th>
+                                            <th>Trạng thái</th>
+                                            <th>Tổng tiền</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dữ liệu lịch sử hóa đơn sẽ được render ở đây -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Utilities Section -->
+                <div id="utilities" class="content-section">
+                    <h3>Chỉ số điện nước</h3>
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Chỉ số điện</h5>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tải ảnh công tơ điện</label>
+                                        <input type="file" class="form-control" id="dienUploadInput" accept="image/*">
+                                        <button class="btn btn-sm btn-primary mt-2" onclick="uploadDienImage()">
+                                            <i class="fas fa-cloud-upload-alt"></i> Tải ảnh & đọc chỉ số
+                                        </button>
+                                        <div id="dienUploadResult" class="small text-muted mt-2"></div>
+                                    </div>
+                                    <div id="dienList" class="row">
+                                        <!-- Chỉ số điện sẽ được hiển thị ở đây -->
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Chỉ số nước</h5>
+                                    <div class="mb-3">
+                                        <label class="form-label">Tải ảnh đồng hồ nước</label>
+                                        <input type="file" class="form-control" id="nuocUploadInput" accept="image/*">
+                                        <button class="btn btn-sm btn-primary mt-2" onclick="uploadNuocImage()">
+                                            <i class="fas fa-cloud-upload-alt"></i> Tải ảnh & đọc chỉ số
+                                        </button>
+                                        <div id="nuocUploadResult" class="small text-muted mt-2"></div>
+                                    </div>
+                                    <div id="nuocList" class="row">
+                                        <!-- Chỉ số nước sẽ được hiển thị ở đây -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal chi tiết hóa đơn -->
+    <div class="modal fade" id="billDetailModal" tabindex="-1" aria-labelledby="billDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="billDetailModalLabel">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                        Chi tiết hóa đơn
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="billDetailContent">
+                        <div class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Đang tải...</span>
+                            </div>
+                            <p class="mt-2">Đang tải thông tin hóa đơn...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Đóng
+                    </button>
+                    <button type="button" class="btn btn-primary" id="printBillBtn" onclick="printBillDetail()">
+                        <i class="fas fa-print me-1"></i> In hóa đơn
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thêm modal thanh toán MoMo -->
+    <div class="modal fade" id="momoPaymentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thanh toán qua MoMo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <img src="https://developers.momo.vn/assets/images/logo.png" alt="MoMo Logo" style="max-width: 200px;">
+                    </div>
+                    <div class="payment-info">
+                        <p><strong>Số tiền:</strong> <span id="momoAmount"></span></p>
+                        <p><strong>Nội dung:</strong> <span id="momoOrderInfo"></span></p>
+                        <p><strong>Mã đơn hàng:</strong> <span id="momoOrderId"></span></p>
+                    </div>
+                    <div class="text-center mt-4">
+                        <div id="momoLoading" style="display:none;">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2">Đang chuyển hướng sang MoMo, vui lòng không tắt trình duyệt...</p>
+                        </div>
+                        <button class="btn btn-primary" id="confirmMomoPayment">
+                            <i class="fas fa-money-bill-wave"></i> Xác nhận thanh toán
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="Config.js"></script>
+    <script>
+        // Kiểm tra đăng nhập và phân quyền
+        const user = JSON.parse(localStorage.getItem('user'));
+        const token = localStorage.getItem('token');
+
+        console.log('Thông tin user từ localStorage:', localStorage.getItem('user'));
+        console.log('User sau khi parse:', user);
+        console.log('Token:', token);
+
+        if (!user || !token) {
+            window.location.href = 'login.html';
+        }
+
+        // Chuyển đổi giữa các section
+        document.querySelectorAll('.nav-link[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = e.target.closest('.nav-link').dataset.section;
+
+                // Cập nhật active state
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                e.target.closest('.nav-link').classList.add('active');
+
+                // Hiển thị section tương ứng
+                document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+            });
+        });
+
+        let currentRoomId = null;
+        let allBillsCache = []; // Cache danh sách hóa đơn để dùng cho viewBillDetail
+
+        // Hiển thị thông tin người dùng
+        async function displayUserInfo() {
+            if (user) {
+                try {
+                    const response = await fetch(`${Config.API_URL}${Config.ENDPOINTS.NGUOI_THUE}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const nguoiThueList = await response.json();
+                        const nguoiThue = nguoiThueList.find(nt => Number(nt.maNguoiDung) === Number(user.id));
+
+                        if (nguoiThue) {
+                            // Hiển thị thông tin cá nhân đẹp với icon
+                            document.getElementById('userFullName').textContent = nguoiThue.hoTen || 'Thông tin người dùng';
+                            const userInfoList = document.getElementById('userInfoList');
+                            userInfoList.innerHTML = `
+                                <li class='mb-2'><i class='fas fa-envelope me-2 text-primary'></i><strong>Email:</strong> ${nguoiThue.email || 'Chưa cập nhật'}</li>
+                                <li class='mb-2'><i class='fas fa-phone me-2 text-success'></i><strong>SĐT:</strong> ${nguoiThue.sdt || 'Chưa cập nhật'}</li>
+                                <li class='mb-2'><i class='fas fa-id-card me-2 text-secondary'></i><strong>CCCD/CMND:</strong> ${nguoiThue.cccd || 'Chưa cập nhật'}</li>
+                                <li class='mb-2'><i class='fas fa-map-marker-alt me-2 text-danger'></i><strong>Địa chỉ:</strong> ${nguoiThue.diaChi || 'Chưa cập nhật'}</li>
+                                <li class='mb-2'><i class='fas fa-birthday-cake me-2 text-warning'></i><strong>Ngày sinh:</strong> ${nguoiThue.ngaySinh ? new Date(nguoiThue.ngaySinh).toLocaleDateString('vi-VN') : 'Chưa cập nhật'}</li>
+                                <li class='mb-2'><i class='fas fa-venus-mars me-2 text-info'></i><strong>Giới tính:</strong> ${nguoiThue.gioiTinh || 'Chưa cập nhật'}</li>
+                                <li class='mb-2'><i class='fas fa-flag me-2 text-secondary'></i><strong>Quốc tịch:</strong> ${nguoiThue.quocTich || 'Chưa cập nhật'}</li>
+                                <li><i class='fas fa-building me-2 text-primary'></i><strong>Nơi công tác:</strong> ${nguoiThue.noiCongTac || 'Chưa cập nhật'}</li>
+                            `;
+
+                            // Load thông tin dashboard
+                            await loadDashboardInfo(nguoiThue.maNguoiThue);
+                            
+                            // Load các thông tin khác
+                            loadContracts(nguoiThue.maNguoiThue);
+                            loadBills(nguoiThue.maNguoiThue);
+                            loadBillHistory(nguoiThue.maNguoiThue);
+                        } else {
+                            console.error('Không tìm thấy thông tin người thuê. MaNguoiDung:', user.id);
+                            alert('Không tìm thấy thông tin người thuê. Vui lòng kiểm tra lại tài khoản của bạn.');
+                        }
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Lỗi API:', response.status, errorText);
+                        alert('Không thể lấy thông tin người thuê. Vui lòng thử lại sau.');
+                    }
+                } catch (error) {
+                    console.error('Lỗi:', error);
+                    alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+                }
+            } else {
+                console.error('Không có thông tin user');
+                alert('Không tìm thấy thông tin đăng nhập. Vui lòng đăng nhập lại.');
+            }
+        }
+
+        // Xử lý đăng xuất
+        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        // Khởi tạo trang
+        displayUserInfo();
+
+        // Thêm hàm loadContracts vào phần script
+        async function loadContracts(maNguoiThue) {
+            try {
+                const response = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOP_DONG}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const contracts = await response.json();
+                    // Lọc hợp đồng của người thuê hiện tại
+                    const userContracts = contracts.filter(contract => contract.maNguoiThue === maNguoiThue);
+                    displayContracts(userContracts);
+                } else {
+                    console.error('Không thể lấy danh sách hợp đồng');
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+            }
+        }
+
+        function displayContracts(contracts) {
+            const contractList = document.getElementById('contractList');
+            contractList.innerHTML = '';
+
+            if (!contracts || contracts.length === 0) {
+                contractList.innerHTML = '<div class="col-12"><p class="text-center">Chưa có hợp đồng nào</p></div>';
+                return;
+            }
+
+            console.log('Danh sách hợp đồng:', contracts);
+
+            contracts.forEach(contract => {
+                console.log('Xử lý hợp đồng:', contract);
+                const statusClass = getStatusClass(contract.ngayKetThuc);
+                const statusText = getStatusText(contract.ngayKetThuc);
+
+                const contractCard = document.createElement('div');
+                contractCard.className = 'col-md-6 mb-4';
+                contractCard.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">Hợp đồng #${contract.maHopDong}</h5>
+                                <span class="badge ${statusClass}">${statusText}</span>
+                            </div>
+                            <p class="card-text">
+                                <i class="fas fa-door-open me-2"></i>Phòng: ${contract.phong?.tenPhong || 'N/A'}<br>
+                                <i class="fas fa-calendar-alt me-2"></i>Ngày bắt đầu: ${formatDate(contract.ngayBatDau)}<br>
+                                <i class="fas fa-calendar-times me-2"></i>Ngày kết thúc: ${formatDate(contract.ngayKetThuc)}<br>
+                                <i class="fas fa-money-bill-wave me-2"></i>Tiền cọc: ${formatCurrency(contract.tienCoc)}<br>
+                                <i class="fas fa-sticky-note me-2"></i>Ghi chú: ${contract.ghiChu || 'Không có'}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                contractList.appendChild(contractCard);
+
+                // Load chỉ số điện nước và hóa đơn cho phòng này
+                if (contract.maPhong) {
+                    currentRoomId = contract.maPhong;
+                    console.log('Loading data for room:', contract.maPhong);
+                    loadChiSoDien(contract.maPhong);
+                    loadChiSoNuoc(contract.maPhong);
+                    loadBills(contract.maPhong);
+                } else {
+                    console.warn('Không có maPhong trong hợp đồng:', contract);
+                }
+            });
+        }
+
+        function getStatusClass(endDate) {
+            const today = new Date();
+            const end = new Date(endDate);
+            if (end < today) return 'bg-danger';
+            if (end - today < 30 * 24 * 60 * 60 * 1000) return 'bg-warning';
+            return 'bg-success';
+        }
+
+        function getStatusText(endDate) {
+            const today = new Date();
+            const end = new Date(endDate);
+            if (end < today) return 'Hết hạn';
+            if (end - today < 30 * 24 * 60 * 60 * 1000) return 'Sắp hết hạn';
+            return 'Còn hạn';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            return new Date(dateStr).toLocaleDateString('vi-VN');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        // Thêm các hàm xử lý chỉ số điện nước vào phần script
+        // ===============================
+// FORMAT HELPER
+// ===============================
+function formatDate(dateString) {
+    const d = new Date(dateString);
+    return d.toLocaleDateString('vi-VN');
+}
+
+function formatCurrency(number) {
+    return number.toLocaleString('vi-VN') + ' đ';
+}
+
+// ===============================
+// LOAD CHỈ SỐ ĐIỆN
+// ===============================
+async function loadChiSoDien(maPhong) {
+    try {
+        const response = await fetch(`${Config.API_URL}${Config.ENDPOINTS.CHI_SO_DIEN}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Không thể lấy danh sách chỉ số điện');
+            return;
+        }
+
+        const dienData = await response.json();
+        const phongDienData = dienData.filter(d => d.maPhong === maPhong);
+
+        displayChiSoDien(phongDienData);
+
+    } catch (error) {
+        console.error("Lỗi loadChiSoDien:", error);
+    }
+}
+
+        // Upload ảnh điện và đọc chỉ số
+        async function uploadDienImage() {
+            if (!currentRoomId) {
+                alert('Chưa xác định phòng đang thuê.');
+                return;
+            }
+            const fileInput = document.getElementById('dienUploadInput');
+            const file = fileInput?.files?.[0];
+            if (!file) {
+                alert('Vui lòng chọn ảnh công tơ điện.');
+                return;
+            }
+            const resultEl = document.getElementById('dienUploadResult');
+            resultEl.textContent = 'Đang tải ảnh và đọc chỉ số...';
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('maPhong', currentRoomId);
+
+                const res = await fetch(`${Config.API_URL}/api/ChiSoDien/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                
+                if (!res.ok) {
+                    const txt = await res.text();
+                    const errorMsg = txt || 'Upload thất bại';
+                    console.error('OCR Error:', errorMsg);
+                    
+                    // Nếu OCR thất bại, vẫn cho phép nhập thủ công
+                    if (confirm(`OCR không đọc được số điện từ ảnh.\n\nLỗi: ${errorMsg}\n\nBạn có muốn nhập số điện thủ công không?`)) {
+                        // Hiển thị modal với số cũ = 0 và cho phép nhập số mới
+                        const lastResponse = await fetch(`${Config.API_URL}/api/ChiSoDien`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        let soDienCu = 0;
+                        if (lastResponse.ok) {
+                            const allDien = await lastResponse.json();
+                            const phongDien = allDien.filter(d => d.maPhong === currentRoomId);
+                            if (phongDien.length > 0) {
+                                const last = phongDien.sort((a, b) => new Date(b.ngayThangDien) - new Date(a.ngayThangDien))[0];
+                                soDienCu = last.soDienMoi || 0;
+                            }
+                        }
+                        
+                        // Upload ảnh lên Cloudinary để lấy URL
+                        const uploadFormData = new FormData();
+                        uploadFormData.append('file', file);
+                        uploadFormData.append('maPhong', currentRoomId);
+                        
+                        // Tạm thời dùng ảnh local hoặc để trống
+                        document.getElementById('confirmDienCu').value = soDienCu;
+                        document.getElementById('confirmDienMoi').value = '';
+                        document.getElementById('confirmDienNgay').value = new Date().toISOString().split('T')[0];
+                        document.getElementById('confirmDienImage').src = URL.createObjectURL(file);
+                        document.getElementById('confirmDienImageUrl').value = ''; // Sẽ upload sau khi lưu
+                        
+                        const modal = new bootstrap.Modal(document.getElementById('confirmDienModal'));
+                        modal.show();
+                        resultEl.textContent = 'Vui lòng nhập số điện mới thủ công.';
+                        return;
+                    }
+                    throw new Error(errorMsg);
+                }
+                const data = await res.json();
+                
+                // Hiển thị modal xác nhận
+                document.getElementById('confirmDienCu').value = data.soDienCu;
+                document.getElementById('confirmDienMoi').value = data.soDienMoi;
+                document.getElementById('confirmDienNgay').value = new Date().toISOString().split('T')[0];
+                document.getElementById('confirmDienImage').src = data.imageUrl;
+                document.getElementById('confirmDienImageUrl').value = data.imageUrl;
+                
+                const modal = new bootstrap.Modal(document.getElementById('confirmDienModal'));
+                modal.show();
+                
+                resultEl.textContent = `Đã đọc: cũ ${data.soDienCu}, mới ${data.soDienMoi}, tiêu thụ ${data.tieuThu} kWh. Vui lòng xác nhận và lưu.`;
+            } catch (err) {
+                console.error(err);
+                resultEl.textContent = `Lỗi: ${err.message}`;
+            }
+        }
+
+        // Lưu chỉ số điện
+        async function saveChiSoDien() {
+            try {
+                const soDienCu = parseInt(document.getElementById('confirmDienCu').value);
+                const soDienMoi = parseInt(document.getElementById('confirmDienMoi').value);
+                const ngayThang = document.getElementById('confirmDienNgay').value;
+                const imageUrl = document.getElementById('confirmDienImageUrl').value;
+
+                if (soDienMoi <= soDienCu) {
+                    alert('Số điện mới phải lớn hơn số điện cũ!');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('MaPhong', currentRoomId);
+                formData.append('SoDienCu', soDienCu);
+                formData.append('SoDienMoi', soDienMoi);
+                formData.append('NgayThangDien', ngayThang);
+                formData.append('AnhChiSoDien', imageUrl);
+
+                const res = await fetch(`${Config.API_URL}/api/ChiSoDien`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || 'Lưu thất bại');
+                }
+
+                alert('Đã lưu chỉ số điện thành công!');
+                
+                // Đóng modal và reload
+                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmDienModal'));
+                modal.hide();
+                
+                // Reset form
+                document.getElementById('dienUploadInput').value = '';
+                document.getElementById('dienUploadResult').textContent = '';
+                
+                // Reload list
+                loadChiSoDien(currentRoomId);
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi: ' + err.message);
+            }
+        }
+
+// ===============================
+// HIỂN THỊ CHỈ SỐ ĐIỆN
+// ===============================
+function displayChiSoDien(dienData) {
+    console.log('Danh sách chỉ số điện:', dienData);
+    const dienList = document.getElementById('dienList');
+    dienList.innerHTML = '';
+
+    if (dienData.length === 0) {
+        dienList.innerHTML = '<div class="col-12"><p class="text-center">Chưa có dữ liệu chỉ số điện</p></div>';
+        return;
+    }
+
+    dienData.forEach(dien => {
+        const col = document.createElement('div');
+        col.className = 'col-12 mb-3';
+
+        col.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Ngày: ${formatDate(dien.ngayThangDien)}</h6>
+                    <p class="card-text">
+                        <strong>Chỉ số cũ:</strong> ${dien.soDienCu} kWh<br>
+                        <strong>Chỉ số mới:</strong> ${dien.soDienMoi} kWh<br>
+                        <strong>Tiêu thụ:</strong> ${dien.soDienTieuThu} kWh<br>
+                        <strong>Đơn giá:</strong> ${formatCurrency(dien.giaDien?.giaTienDien ?? 0)}/kWh<br>
+                        <strong>Thành tiền:</strong> ${formatCurrency(dien.tienDien)}<br><br>
+
+                        <img src="${dien.anhChiSoDien}" 
+                             alt="Ảnh chỉ số điện" 
+                             style="max-width:150px;border-radius:6px;border:1px solid #ddd;">
+                    </p>
+                </div>
+            </div>
+        `;
+
+        dienList.appendChild(col);
+    });
+}
+
+// ===============================
+// LOAD CHỈ SỐ NƯỚC
+// ===============================
+async function loadChiSoNuoc(maPhong) {
+    try {
+        const response = await fetch(`${Config.API_URL}${Config.ENDPOINTS.CHI_SO_NUOC}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            console.error('Không thể lấy danh sách chỉ số nước');
+            return;
+        }
+
+        const nuocData = await response.json();
+        const phongNuocData = nuocData.filter(n => n.maPhong === maPhong);
+
+        displayChiSoNuoc(phongNuocData);
+
+    } catch (error) {
+        console.error("Lỗi loadChiSoNuoc:", error);
+    }
+}
+
+        // Upload ảnh nước và đọc chỉ số
+        async function uploadNuocImage() {
+            if (!currentRoomId) {
+                alert('Chưa xác định phòng đang thuê.');
+                return;
+            }
+            const fileInput = document.getElementById('nuocUploadInput');
+            const file = fileInput?.files?.[0];
+            if (!file) {
+                alert('Vui lòng chọn ảnh đồng hồ nước.');
+                return;
+            }
+            const resultEl = document.getElementById('nuocUploadResult');
+            resultEl.textContent = 'Đang tải ảnh và đọc chỉ số...';
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('maPhong', currentRoomId);
+
+                const res = await fetch(`${Config.API_URL}/api/ChiSoNuoc/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                
+                if (!res.ok) {
+                    const txt = await res.text();
+                    const errorMsg = txt || 'Upload thất bại';
+                    console.error('OCR Error:', errorMsg);
+                    
+                    // Nếu OCR thất bại, vẫn cho phép nhập thủ công
+                    if (confirm(`OCR không đọc được số nước từ ảnh.\n\nLỗi: ${errorMsg}\n\nBạn có muốn nhập số nước thủ công không?`)) {
+                        // Hiển thị modal với số cũ = 0 và cho phép nhập số mới
+                        const lastResponse = await fetch(`${Config.API_URL}/api/ChiSoNuoc`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        let soNuocCu = 0;
+                        if (lastResponse.ok) {
+                            const allNuoc = await lastResponse.json();
+                            const phongNuoc = allNuoc.filter(n => n.maPhong === currentRoomId);
+                            if (phongNuoc.length > 0) {
+                                const last = phongNuoc.sort((a, b) => new Date(b.ngayThangNuoc) - new Date(a.ngayThangNuoc))[0];
+                                soNuocCu = last.soNuocMoi || 0;
+                            }
+                        }
+                        
+                        document.getElementById('confirmNuocCu').value = soNuocCu;
+                        document.getElementById('confirmNuocMoi').value = '';
+                        document.getElementById('confirmNuocNgay').value = new Date().toISOString().split('T')[0];
+                        document.getElementById('confirmNuocImage').src = URL.createObjectURL(file);
+                        document.getElementById('confirmNuocImageUrl').value = ''; // Sẽ upload sau khi lưu
+                        
+                        const modal = new bootstrap.Modal(document.getElementById('confirmNuocModal'));
+                        modal.show();
+                        resultEl.textContent = 'Vui lòng nhập số nước mới thủ công.';
+                        return;
+                    }
+                    throw new Error(errorMsg);
+                }
+                const data = await res.json();
+                
+                // Hiển thị modal xác nhận
+                document.getElementById('confirmNuocCu').value = data.soNuocCu;
+                document.getElementById('confirmNuocMoi').value = data.soNuocMoi;
+                document.getElementById('confirmNuocNgay').value = new Date().toISOString().split('T')[0];
+                document.getElementById('confirmNuocImage').src = data.imageUrl;
+                document.getElementById('confirmNuocImageUrl').value = data.imageUrl;
+                
+                const modal = new bootstrap.Modal(document.getElementById('confirmNuocModal'));
+                modal.show();
+                
+                resultEl.textContent = `Đã đọc: cũ ${data.soNuocCu}, mới ${data.soNuocMoi}, tiêu thụ ${data.tieuThu} m³. Vui lòng xác nhận và lưu.`;
+            } catch (err) {
+                console.error(err);
+                resultEl.textContent = `Lỗi: ${err.message}`;
+            }
+        }
+
+        // Lưu chỉ số nước
+        async function saveChiSoNuoc() {
+            try {
+                const soNuocCu = parseInt(document.getElementById('confirmNuocCu').value);
+                const soNuocMoi = parseInt(document.getElementById('confirmNuocMoi').value);
+                const ngayThang = document.getElementById('confirmNuocNgay').value;
+                const imageUrl = document.getElementById('confirmNuocImageUrl').value;
+
+                if (soNuocMoi <= soNuocCu) {
+                    alert('Số nước mới phải lớn hơn số nước cũ!');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('MaPhong', currentRoomId);
+                formData.append('SoNuocCu', soNuocCu);
+                formData.append('SoNuocMoi', soNuocMoi);
+                formData.append('NgayThangNuoc', ngayThang);
+                formData.append('AnhChiSoNuoc', imageUrl);
+
+                const res = await fetch(`${Config.API_URL}/api/ChiSoNuoc`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    const txt = await res.text();
+                    throw new Error(txt || 'Lưu thất bại');
+                }
+
+                alert('Đã lưu chỉ số nước thành công!');
+                
+                // Đóng modal và reload
+                const modal = bootstrap.Modal.getInstance(document.getElementById('confirmNuocModal'));
+                modal.hide();
+                
+                // Reset form
+                document.getElementById('nuocUploadInput').value = '';
+                document.getElementById('nuocUploadResult').textContent = '';
+                
+                // Reload list
+                loadChiSoNuoc(currentRoomId);
+            } catch (err) {
+                console.error(err);
+                alert('Lỗi: ' + err.message);
+            }
+        }
+
+// ===============================
+// HIỂN THỊ CHỈ SỐ NƯỚC
+// ===============================
+function displayChiSoNuoc(nuocData) {
+    console.log('Hiển thị chỉ số nước:', nuocData);
+    const nuocList = document.getElementById('nuocList');
+    nuocList.innerHTML = '';
+
+    if (nuocData.length === 0) {
+        nuocList.innerHTML = '<div class="col-12"><p class="text-center">Chưa có dữ liệu chỉ số nước</p></div>';
+        return;
+    }
+
+    nuocData.forEach(nuoc => {
+        const col = document.createElement('div');
+        col.className = 'col-12 mb-3';
+
+        col.innerHTML = `
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Ngày: ${formatDate(nuoc.ngayThangNuoc)}</h6>
+                    <p class="card-text">
+                        <strong>Chỉ số cũ:</strong> ${nuoc.soNuocCu} m³<br>
+                        <strong>Chỉ số mới:</strong> ${nuoc.soNuocMoi} m³<br>
+                        <strong>Tiêu thụ:</strong> ${nuoc.soNuocTieuThu} m³<br>
+                        <strong>Đơn giá:</strong> ${formatCurrency(nuoc.giaNuoc?.giaTienNuoc ?? 0)}/m³<br>
+                        <strong>Thành tiền:</strong> ${formatCurrency(nuoc.tienNuoc)}<br><br>
+
+                        <img src="${nuoc.anhChiSoNuoc}" 
+                             alt="Ảnh chỉ số nước"
+                             style="max-width:150px;border-radius:6px;border:1px solid #ddd;">
+                    </p>
+                </div>
+            </div>
+        `;
+
+        nuocList.appendChild(col);
+    });
+}
+
+
+        // Thêm các hàm xử lý hóa đơn vào phần script
+        async function loadBills(maNguoiThue) {
+            try {
+                // Lấy danh sách hợp đồng của người thuê để lấy mã phòng
+                const response = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOP_DONG}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!response.ok) return;
+                const contracts = await response.json();
+                const userContracts = contracts.filter(contract => contract.maNguoiThue === maNguoiThue);
+                if (!userContracts || userContracts.length === 0) return;
+                // Lấy mã phòng từ hợp đồng mới nhất
+                const maPhong = userContracts[0].maPhong;
+                // Lấy danh sách hóa đơn của phòng và người thuê
+                const billRes = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOA_DON}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!billRes.ok) return;
+                const allBills = await billRes.json();
+                // Lọc hóa đơn đúng phòng, đúng người thuê và chưa thanh toán
+                const unpaidBills = allBills.filter(bill => bill.maPhong === maPhong && bill.maNguoiThue === maNguoiThue && bill.trangThai === 1);
+                // Cập nhật cache với tất cả hóa đơn
+                allBillsCache = allBills;
+                displayBills(unpaidBills);
+            } catch (error) {
+                console.error('Lỗi khi load hóa đơn:', error);
+            }
+        }
+
+        function displayBills(bills) {
+            const billList = document.getElementById('billList');
+            if (!billList) {
+                console.error('Không tìm thấy phần tử billList');
+                return;
+            }
+
+            billList.innerHTML = '';
+
+            if (!bills || bills.length === 0) {
+                billList.innerHTML = '<div class="col-12"><p class="text-center">Chưa có hóa đơn nào</p></div>';
+                return;
+            }
+
+            // Cập nhật cache
+            allBillsCache = bills;
+
+            console.log('Đang hiển thị hóa đơn:', bills);
+
+            bills.forEach(bill => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 mb-4';
+                col.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title">Hóa Đơn #${bill.maHoaDon}</h5>
+                                <span class="badge ${bill.trangThai === 2 ? 'bg-success' : 'bg-danger'}">
+                                    ${bill.trangThai === 2 ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                                </span>
+                            </div>
+                            <p class="card-text">
+                                <strong>Phòng:</strong> ${bill.tenPhong}<br>
+                                <strong>Kỳ hóa đơn:</strong> ${bill.kyHoaDon}<br>
+                                <strong>Ngày lập:</strong> ${formatDate(bill.ngayLap)}<br>
+                                <strong>Tiền phòng:</strong> ${formatCurrency(bill.tienPhong)}<br>
+                                <strong>Tiền điện:</strong> ${formatCurrency(bill.tienDien)}<br>
+                                <strong>Tiền nước:</strong> ${formatCurrency(bill.tienNuoc)}<br>
+                                <strong>Tiền dịch vụ:</strong> ${formatCurrency(bill.tienDichVu)}<br>
+                                <strong>Tiền phát sinh:</strong> ${formatCurrency(bill.tienPhatSinhKhac)}<br>
+                                <strong>Tổng tiền:</strong> ${formatCurrency(bill.tongTien)}
+                            </p>
+                            <div class="btn-group w-100">
+                                <button class="btn btn-outline-primary" onclick="viewBillDetail(${bill.maHoaDon})">
+                                    <i class="fas fa-eye"></i> Xem chi tiết hóa đơn
+                                </button>
+                                <button class="btn btn-outline-primary" onclick="thanhToanHoaDon('${bill.maHoaDon}', '${bill.tongTien}', '${bill.tenPhong}')">
+                                    <i class="fas fa-money-bill-wave"></i> Thanh toán
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                billList.appendChild(col);
+            });
+        }
+
+        async function viewBillDetail(maHoaDon) {
+            try {
+                // Hiển thị modal và loading
+                const modal = new bootstrap.Modal(document.getElementById('billDetailModal'));
+                modal.show();
+                
+                const billDetailContent = document.getElementById('billDetailContent');
+                billDetailContent.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2">Đang tải thông tin hóa đơn...</p>
+                    </div>
+                `;
+
+                // Tìm hóa đơn trong cache hoặc danh sách đã load
+                let bill = allBillsCache.find(b => b.maHoaDon == maHoaDon);
+                
+                // Nếu không tìm thấy trong cache, thử lấy từ danh sách hóa đơn
+                if (!bill) {
+                    try {
+                        const response = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOA_DON}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const bills = await response.json();
+                            allBillsCache = bills; // Cập nhật cache
+                            bill = bills.find(b => b.maHoaDon == maHoaDon);
+                        }
+                    } catch (e) {
+                        console.error('Lỗi khi lấy danh sách hóa đơn:', e);
+                    }
+                }
+
+                if (!bill) {
+                    throw new Error('Không tìm thấy thông tin hóa đơn');
+                }
+                
+                // Lưu mã hóa đơn để in sau
+                window.currentBillId = maHoaDon;
+
+                // Hiển thị chi tiết hóa đơn
+                const statusBadge = bill.trangThai === 2 
+                    ? '<span class="badge bg-success">Đã thanh toán</span>'
+                    : '<span class="badge bg-danger">Chưa thanh toán</span>';
+
+                billDetailContent.innerHTML = `
+                    <div class="bill-detail">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h4 class="mb-1">Hóa đơn #${bill.maHoaDon}</h4>
+                                <p class="text-muted mb-0">Kỳ hóa đơn: ${bill.kyHoaDon || 'N/A'}</p>
+                            </div>
+                            ${statusBadge}
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-primary mb-3"><i class="fas fa-info-circle me-2"></i>Thông tin chung</h6>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td class="text-muted" style="width: 40%;"><i class="fas fa-door-open me-2"></i>Phòng:</td>
+                                        <td><strong>${bill.tenPhong || 'N/A'}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-user me-2"></i>Người thuê:</td>
+                                        <td><strong>${bill.tenNguoiThue || 'N/A'}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-calendar-alt me-2"></i>Ngày lập:</td>
+                                        <td><strong>${formatDate(bill.ngayLap)}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-calendar me-2"></i>Kỳ hóa đơn:</td>
+                                        <td><strong>${bill.kyHoaDon || 'N/A'}</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-success mb-3"><i class="fas fa-money-bill-wave me-2"></i>Chi tiết thanh toán</h6>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td class="text-muted" style="width: 50%;"><i class="fas fa-home me-2"></i>Tiền phòng:</td>
+                                        <td class="text-end"><strong>${formatCurrency(bill.tienPhong || 0)}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-bolt me-2 text-warning"></i>Tiền điện:</td>
+                                        <td class="text-end"><strong>${formatCurrency(bill.tienDien || 0)}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-tint me-2 text-info"></i>Tiền nước:</td>
+                                        <td class="text-end"><strong>${formatCurrency(bill.tienNuoc || 0)}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-concierge-bell me-2 text-success"></i>Tiền dịch vụ:</td>
+                                        <td class="text-end"><strong>${formatCurrency(bill.tienDichVu || 0)}</strong></td>
+                                    </tr>
+                                    ${bill.tienPhatSinhKhac ? `
+                                    <tr>
+                                        <td class="text-muted"><i class="fas fa-plus-circle me-2"></i>Tiền phát sinh:</td>
+                                        <td class="text-end"><strong>${formatCurrency(bill.tienPhatSinhKhac)}</strong></td>
+                                    </tr>
+                                    ` : ''}
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="fas fa-calculator me-2"></i>Tổng tiền:</h5>
+                                    <h4 class="mb-0 text-primary">
+                                        <strong>${formatCurrency(bill.tongTien || 0)}</strong>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${bill.ghiChu ? `
+                        <div class="mt-3">
+                            <h6><i class="fas fa-sticky-note me-2"></i>Ghi chú:</h6>
+                            <p class="text-muted">${bill.ghiChu}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Lỗi khi tải chi tiết hóa đơn:', error);
+                document.getElementById('billDetailContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Không thể tải thông tin hóa đơn. Vui lòng thử lại sau.
+                    </div>
+                `;
+            }
+        }
+
+        function printBillDetail() {
+            if (window.currentBillId) {
+                const pdfUrl = `${Config.API_URL}${Config.ENDPOINTS.HOA_DON}/PrintPdf/${window.currentBillId}`;
+                const htmlUrl = `${Config.API_URL}${Config.ENDPOINTS.HOA_DON}/Print/${window.currentBillId}`;
+                
+                // Thử mở PDF trước, nếu không có thì mở HTML
+                fetch(pdfUrl, { method: 'HEAD' })
+                    .then(res => {
+                        if (res.ok) {
+                            window.open(pdfUrl, '_blank');
+                        } else {
+                            window.open(htmlUrl, '_blank');
+                        }
+                    })
+                    .catch(() => {
+                        window.open(htmlUrl, '_blank');
+                    });
+            }
+        }
+
+        async function thanhToanHoaDon(maHoaDon, tongTien, tenPhong) {
+            try {
+                const token = localStorage.getItem('token');
+                const currentUser = JSON.parse(localStorage.getItem('user'));
+
+                if (!token || !currentUser || !currentUser.id) {
+                    throw new Error('Không có token xác thực hoặc thông tin người dùng hợp lệ');
+                }
+
+                console.log('Bắt đầu thanh toán với:', { maHoaDon, tongTien, tenPhong });
+
+                // Lấy thông tin người thuê từ API
+                const nguoiThueResponse = await fetch(`${Config.API_URL}${Config.ENDPOINTS.NGUOI_THUE}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!nguoiThueResponse.ok) {
+                    throw new Error('Không thể lấy thông tin người thuê');
+                }
+
+                const nguoiThueList = await nguoiThueResponse.json();
+                const nguoiThue = nguoiThueList.find(nt => Number(nt.maNguoiDung) === Number(currentUser.id));
+
+                if (!nguoiThue) {
+                    throw new Error('Không tìm thấy thông tin người thuê');
+                }
+
+                // Chuẩn bị dữ liệu gửi lên API thanh toán
+                const paymentData = {
+                    maHoaDon: parseInt(maHoaDon),
+                    maNguoiThue: parseInt(nguoiThue.maNguoiThue),
+                    tongTien: parseFloat(tongTien),
+                    hinhThucThanhToan: "MoMo",
+                    ngayThanhToan: new Date().toISOString()
+                };
+
+                console.log('Dữ liệu gửi thanh toán:', paymentData);
+
+                const paymentResponse = await fetch(`${Config.API_URL}${Config.ENDPOINTS.THANH_TOAN}/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+
+                if (!paymentResponse.ok) {
+                    const errorText = await paymentResponse.text();
+                    console.error('Chi tiết lỗi:', errorText);
+                    throw new Error(`Không thể tạo yêu cầu thanh toán: ${errorText}`);
+                }
+
+                const paymentResult = await paymentResponse.json();
+                console.log('Kết quả thanh toán:', paymentResult);
+
+                if (paymentResult.paymentUrl) {
+                    // Hiển thị thông tin thanh toán trong modal
+                    document.getElementById('momoAmount').textContent = formatCurrency(tongTien);
+                    document.getElementById('momoOrderInfo').textContent = `Thanh toán tiền của phòng ${tenPhong}`;
+                    document.getElementById('momoOrderId').textContent = paymentResult.orderId || `HD ${maHoaDon}`;
+
+                    // Hiển thị modal
+                    const modal = new bootstrap.Modal(document.getElementById('momoPaymentModal'));
+                    modal.show();
+
+                    // Xử lý sự kiện xác nhận thanh toán
+                    const btnConfirm = document.getElementById('confirmMomoPayment');
+                    btnConfirm.onclick = () => {
+                        // Hiển thị loading
+                        document.getElementById('momoLoading').style.display = 'block';
+                        btnConfirm.style.display = 'none';
+
+                        // Chuyển hướng sau 1 giây
+                        setTimeout(() => {
+                            window.location.href = paymentResult.paymentUrl;
+                        }, 1000);
+                    };
+                } else {
+                    throw new Error('Không nhận được URL thanh toán');
+                }
+            } catch (error) {
+                console.error('Lỗi khi tạo thanh toán:', error);
+                alert('Có lỗi xảy ra khi tạo thanh toán. Vui lòng thử lại sau.');
+            }
+        }
+
+        // Thêm hàm loadBillHistory để lấy và hiển thị lịch sử hóa đơn
+        async function loadBillHistory(maNguoiThue) {
+            try {
+                // Lấy danh sách hợp đồng của người thuê để lấy mã phòng
+                const response = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOP_DONG}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!response.ok) return;
+                const contracts = await response.json();
+                const userContracts = contracts.filter(contract => contract.maNguoiThue === maNguoiThue);
+                if (!userContracts || userContracts.length === 0) return;
+                // Lấy mã phòng từ hợp đồng mới nhất
+                const maPhong = userContracts[0].maPhong;
+                // Lấy danh sách hóa đơn của phòng và người thuê
+                const billRes = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOA_DON}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                if (!billRes.ok) return;
+                const allBills = await billRes.json();
+                // Lọc hóa đơn đúng phòng và đúng người thuê
+                const roomBills = allBills.filter(bill => bill.maPhong === maPhong && bill.maNguoiThue === maNguoiThue);
+                // Cập nhật cache với tất cả hóa đơn
+                allBillsCache = allBills;
+                renderBillHistory(roomBills);
+            } catch (error) {
+                console.error('Lỗi khi load lịch sử hóa đơn:', error);
+            }
+        }
+
+        function renderBillHistory(bills) {
+            const tbody = document.querySelector('#billHistoryTable tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (!bills || bills.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Chưa có lịch sử hóa đơn</td></tr>';
+                return;
+            }
+            bills.forEach(bill => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${bill.maHoaDon}</td>
+                    <td>${bill.kyHoaDon}</td>
+                    <td>${formatDate(bill.ngayLap)}</td>
+                    <td><span class="badge ${bill.trangThai === 2 ? 'bg-success' : 'bg-danger'}">${bill.trangThai === 2 ? 'Đã thanh toán' : 'Chưa thanh toán'}</span></td>
+                    <td>${formatCurrency(bill.tongTien)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewBillDetail(${bill.maHoaDon})"><i class="fas fa-eye"></i> Xem chi tiết</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        async function loadThongBao() {
+            try {
+                const res = await fetch(`${Config.API_URL}/api/thongbao`, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!res.ok) {
+                    // Nếu endpoint không tồn tại hoặc lỗi, không hiển thị gì
+                    console.warn('Không thể tải thông báo hệ thống:', res.status);
+                    return;
+                }
+                
+                const data = await res.json();
+                const thongBaoDiv = document.getElementById('thongBaoList');
+                
+                // Kiểm tra xem element có tồn tại không
+                if (!thongBaoDiv) {
+                    return;
+                }
+                
+                thongBaoDiv.innerHTML = '';
+                if (!data || data.length === 0) return;
+                
+                data.forEach(tb => {
+                    thongBaoDiv.innerHTML += `
+                        <div class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+                            <strong>${tb.title || 'Thông báo'}</strong>: ${tb.content || ''}
+                            <span class="badge bg-light text-dark ms-2">${tb.createdAt ? new Date(tb.createdAt).toLocaleString('vi-VN') : ''}</span>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                // Xử lý lỗi một cách im lặng, không làm gián đoạn ứng dụng
+                console.warn('Không thể tải thông báo hệ thống:', error.message);
+            }
+        }
+        async function loadDashboardInfo(maNguoiThue) {
+            try {
+                // Lấy thông tin hợp đồng
+                const contractResponse = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOP_DONG}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (contractResponse.ok) {
+                    const contracts = await contractResponse.json();
+                    const currentContract = contracts.find(c => 
+                        c.maNguoiThue === maNguoiThue && 
+                        new Date(c.ngayKetThuc) >= new Date()
+                    );
+
+                    if (currentContract) {
+                        document.getElementById('currentContractInfo').innerHTML = `
+                            <p class="card-text">
+                                <strong>Phòng:</strong> ${currentContract.phong?.tenPhong || 'N/A'}<br>
+                                <strong>Ngày bắt đầu:</strong> ${formatDate(currentContract.ngayBatDau)}<br>
+                                <strong>Ngày kết thúc:</strong> ${formatDate(currentContract.ngayKetThuc)}<br>
+                                <strong>Tiền cọc:</strong> ${formatCurrency(currentContract.tienCoc)}
+                            </p>
+                        `;
+
+                        // Lấy thông tin phòng
+                        if (currentContract.maPhong) {
+                            currentRoomId = currentContract.maPhong;
+                            const roomResponse = await fetch(`${Config.API_URL}${Config.ENDPOINTS.PHONG}/${currentContract.maPhong}`, {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            if (roomResponse.ok) {
+                                const room = await roomResponse.json();
+                                document.getElementById('roomInfo').innerHTML = `
+                                    <div id="roomImageBox" class="mb-2 text-center"></div>
+                                    <p class="card-text">
+                                        <strong>Tên phòng:</strong> ${room.tenPhong}<br>
+                                        <strong>Diện tích:</strong> ${room.dienTich} m²<br>
+                                        <strong>Giá phòng:</strong> ${formatCurrency(room.giaPhong)}<br>
+                                        <strong>Sức chứa:</strong> ${room.sucChua} người
+                                    </p>
+                                    <div class="action-buttons">
+                                        <button id="btnOpen" class="btn btn-iot btn-iot-open btn-sm me-2" onclick="guiLenh('OPEN')">
+                                            <i class="fas fa-door-open me-1"></i> Mở cửa
+                                        </button>
+                                        <button id="btnClose" class="btn btn-iot btn-iot-close btn-sm" onclick="guiLenh('CLOSE')">
+                                            <i class="fas fa-lock me-1"></i> Khóa cửa
+                                        </button>
+                                    </div>
+                                    <div id="statusArea" class="iot-status"></div>
+                                `;
+                                // Hiển thị hình ảnh phòng
+                                const imageBox = document.getElementById('roomImageBox');
+                                let imgSrc = '';
+                                if (Array.isArray(room.hinhAnh) && room.hinhAnh.length > 0) {
+                                    imgSrc = room.hinhAnh[0];
+                                } else if (room.hinhAnh) {
+                                    imgSrc = room.hinhAnh;
+                                } else {
+                                    imgSrc = 'default-room.jpg';
+                                }
+                                imageBox.innerHTML = `<img src="${imgSrc}" alt="${room.tenPhong}" style="max-width:100%;max-height:180px;object-fit:cover;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);">`;
+                            }
+                        }
+                    } else {
+                        document.getElementById('currentContractInfo').innerHTML = 
+                            '<p class="card-text text-warning">Chưa có hợp đồng nào</p>';
+                        document.getElementById('roomInfo').innerHTML = 
+                            '<p class="card-text text-warning">Chưa có thông tin phòng</p>';
+                    }
+                }
+
+                // Lấy thông tin hóa đơn chưa thanh toán
+                const billResponse = await fetch(`${Config.API_URL}${Config.ENDPOINTS.HOA_DON}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (billResponse.ok) {
+                    const bills = await billResponse.json();
+                    const unpaidBills = bills.filter(bill => 
+                        bill.maNguoiThue === maNguoiThue && 
+                        bill.trangThai === 1
+                    );
+
+                    if (unpaidBills.length > 0) {
+                        const totalUnpaid = unpaidBills.reduce((sum, bill) => sum + bill.tongTien, 0);
+                        const firstBill = unpaidBills[0];
+                        document.getElementById('unpaidBillsInfo').innerHTML = `
+                            <p class="card-text">
+                                <strong>Số hóa đơn chưa thanh toán:</strong> ${unpaidBills.length}<br>
+                                <strong>Tổng số tiền:</strong> ${formatCurrency(totalUnpaid)}<br>
+                                <div class="d-flex gap-2 mt-2">
+                                    <a href="#" onclick="document.querySelector('[data-section=bills]').click()" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-list"></i> Xem chi tiết
+                                    </a>
+                                    <button class="btn btn-success btn-sm" onclick="thanhToanHoaDon('${firstBill.maHoaDon}', '${firstBill.tongTien}', '${firstBill.tenPhong || 'N/A'}')">
+                                        <i class="fas fa-money-bill-wave"></i> Thanh toán ngay
+                                    </button>
+                                </div>
+                            </p>
+                        `;
+                    } else {
+                        document.getElementById('unpaidBillsInfo').innerHTML = 
+                            '<p class="card-text text-success">Không có hóa đơn nào chưa thanh toán</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải thông tin dashboard:', error);
+                document.getElementById('currentContractInfo').innerHTML = 
+                    '<p class="card-text text-danger">Lỗi khi tải thông tin</p>';
+                document.getElementById('unpaidBillsInfo').innerHTML = 
+                    '<p class="card-text text-danger">Lỗi khi tải thông tin</p>';
+                document.getElementById('roomInfo').innerHTML = 
+                    '<p class="card-text text-danger">Lỗi khi tải thông tin</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadThongBao();
+            loadDashboardInfo(user.id);
+        });
+         async function guiLenh(hanhDong) {
+            const statusArea = document.getElementById('statusArea');
+            const btnOpen = document.getElementById('btnOpen');
+            const btnClose = document.getElementById('btnClose');
+
+            // 1. Khóa nút
+            if(btnOpen) btnOpen.disabled = true;
+            if(btnClose) btnClose.disabled = true;
+            if(statusArea) statusArea.innerHTML = `<span class="spinner-border spinner-border-sm text-primary"></span> Đang gửi lệnh...`;
+
+            try {
+                // 2. Gọi API (Lưu ý đường dẫn /api/Phong/...)
+                const response = await fetch(`${Config.API_URL}/api/Phong/nguoi-thue-dieu-khien`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ hanhDong: hanhDong })
+                });
+
+                // 3. Xử lý kết quả
+                if (response.ok) {
+                    const data = await response.json();
+                    if(statusArea) statusArea.innerHTML = `<span class="text-success fw-bold"><i class="fas fa-check"></i> ${data.message}</span>`;
+                } else {
+                    // Nếu lỗi 404 ở đây nghĩa là Server chưa có API này -> Quay lại PHẦN 1
+                    const errData = await response.json().catch(() => ({})); 
+                    if(statusArea) statusArea.innerHTML = `<span class="text-danger">Lỗi: ${errData.message || response.statusText}</span>`;
+                }
+            } catch (error) {
+                console.error(error);
+                if(statusArea) statusArea.innerHTML = `<span class="text-danger">Lỗi kết nối Server!</span>`;
+            } finally {
+                // 4. Mở lại nút
+                setTimeout(() => {
+                    if(btnOpen) btnOpen.disabled = false;
+                    if(btnClose) btnClose.disabled = false;
+                    if (statusArea && statusArea.innerHTML.includes("check")) statusArea.innerHTML = "";
+                }, 2000);
+            }
+        }
+    </script>
+    <!-- Config.js đã được load ở trên, không cần load lại -->
+    <script src="js/chat-modal.js"></script>
+    <script src="js/floating-chat.js"></script>
+</body>
+
+</html>

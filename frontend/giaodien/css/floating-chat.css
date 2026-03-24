@@ -1,0 +1,162 @@
+/* Floating Chat Button */
+.floating-chat-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+/* Hiển thị 2 bong bóng xếp chồng */
+.floating-chat-container.has-two-buttons {
+    gap: 12px;
+}
+
+.floating-chat-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2470dc 0%, #1e5bb8 100%);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(36, 112, 220, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    position: relative;
+    animation: pulse 2s infinite;
+}
+
+.floating-chat-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(36, 112, 220, 0.6);
+}
+
+.floating-chat-btn.admin {
+    background: linear-gradient(135deg, #2470dc 0%, #1e5bb8 100%);
+}
+
+.floating-chat-btn.user {
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+}
+
+.floating-chat-btn.notification {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    animation: pulse-yellow 2s infinite;
+}
+
+.floating-chat-btn.secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+}
+
+@keyframes pulse-yellow {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 193, 7, 0.8);
+    }
+}
+
+.floating-chat-btn i {
+    pointer-events: none;
+}
+
+/* Badge số tin nhắn chưa đọc */
+.chat-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    border: 2px solid white;
+    animation: bounce 1s infinite;
+}
+
+.chat-badge.hidden {
+    display: none;
+}
+
+/* Tooltip */
+.chat-tooltip {
+    position: absolute;
+    right: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.floating-chat-btn:hover .chat-tooltip {
+    opacity: 1;
+}
+
+.chat-tooltip::after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-left-color: #333;
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 12px rgba(36, 112, 220, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(36, 112, 220, 0.8);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .floating-chat-container {
+        bottom: 15px;
+        right: 15px;
+        gap: 10px;
+    }
+    
+    .floating-chat-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .chat-tooltip {
+        display: none;
+    }
+}
+
