@@ -1,0 +1,81 @@
+# Build outputs - không cần thiết trong image
+bin/
+obj/
+out/
+[Dd]ebug/
+[Rr]elease/
+
+# Visual Studio files
+*.user
+*.suo
+*.userosscache
+.vs/
+*.vs/
+
+# Git - không cần thiết trong image
+.git/
+.gitignore
+.gitattributes
+
+# Environment và secrets - QUAN TRỌNG: không đưa vào image
+*.env
+.env
+.env.local
+.env.*.local
+appsettings.Local.json
+appsettings.Development.json
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.cache
+*.swp
+*.swo
+*~
+
+# IDE files
+.idea/
+.vscode/
+*.sln.iml
+*.userprefs
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+
+# NuGet packages cache
+*.nupkg
+*.snupkg
+**/packages/*
+*.nuget.props
+*.nuget.targets
+project.lock.json
+
+# Docker files
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# Node modules (nếu có)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Coverage reports
+coverage/
+*.coverage
+
+# MSBuild files
+*.binlog
+*.pidb
+
+# Other build artifacts
+*.pdb
+*.dll.config
+*.exe.config

@@ -1,0 +1,16 @@
+# Files to ignore when deploying to Railway
+bin/
+obj/
+.vs/
+.idea/
+*.user
+*.suo
+*.log
+.env
+.env.local
+node_modules/
+Uploads/
+*.db
+*.db-shm
+*.db-wal
+

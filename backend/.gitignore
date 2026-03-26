@@ -1,0 +1,43 @@
+# Visual Studio
+
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build Folders
+
+bin/
+obj/
+out/
+
+# Rider
+
+.idea/
+
+# NuGet
+
+*.nupkg
+*.snupkg
+packages/
+
+# ASP.NET Core
+
+wwwroot/uploads/
+*.db
+appsettings.Development.json
+
+# Others
+
+*.log
+*.DS_Store
+*.tmp
+*.bak
+*.swp
+~*.*
+
+# JetBrains Rider
+
+.idea/
+*.sln.iml

@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DoAnCoSo.Models.Dtos
+{
+    public class HoaDonDto
+    {
+    
+        public int MaHoaDon { get; set; }
+        public int MaPhong { get; set; }
+        public int MaNguoiThue { get; set; }
+        public string TenPhong { get; set; }
+        public string TenNguoiThue { get; set; }
+        public decimal TienDichVu { get; set; } = 0;
+        public decimal TienNuoc { get; set; }
+        public decimal TienDien { get; set; }
+        public decimal TienPhong { get; set; }
+        public DateTime NgayLap { get; set; }
+        public string KyHoaDon { get; set; }
+        public decimal TongTien { get; set; }
+        public List<ChiTietDichVuDto> ChiTietDichVu { get; set; }
+        public int TrangThai { get; set; } // 1: Chưa thanh toán, 2: Đã thanh toán
+    }
+
+}
